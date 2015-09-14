@@ -12,11 +12,36 @@ with questions for class!
     in your calculation.  (We will return to this question again after
     we cover some computer architecture.)
     
+    Each Xeon Phi has a theoretical limit of 1.01088 TFlops according to footnote 3 of 
+    http://www.transtec.de/fileadmin/Medien/pdf/HPC/Xeon_Phi/high-performance-xeon-phi-coprocessor-brief-2.pdf
+
+    Each core can do 16 FLOPS/clock cycle according to
+    https://www.microway.com/hpc-tech-tips/intel-xeon-e5-2600-v3-haswell-processor-review/
+    Each core runs at 2.4 GHz
+    This yields 2.4 * 16 GFLOPS = 38.4 GLOPS
+
+    Overall the cluster can do:
+    38.4 * 8 GFLOPS + 1.01088 * 15 TFLOPS
+    For a total of 0.307 TFLOPS + 15.1632 TFLOPS = 15.4702 TFLOPS
+
 2.  What is the approximate theoretical peak flop rate for your own machine?
+
+    I only have an i7 processor. It runs at 2.30 GHz. It can perform 4 FLOPs/cycle according to
+    http://stackoverflow.com/questions/15655835/flops-per-cycle-for-sandy-bridge-and-haswell-sse2-avx-avx2
+
+    Overall this is 2.30 * 4 = 9.20 GFLOPS
 
 3.  Suppose there are t tasks that can be executed in a pipeline
     with p stages.  What is the speedup over serial execution of the
     same tasks?
+
+    Serial execution requires each task to go through the pipeline
+    by itself.
+    Pipelining allows you to speed this up to:
+        t time to complete the first task and (t-1)/p time to complete the
+        remaining tasks.
+        Total time:
+            t + (t-1)/p
 
 4.  Consider the following list of tasks (assume they can't be pipelined):
 
@@ -31,6 +56,9 @@ with questions for class!
     a compiled application?  What is the minimum parallel time given
     an arbitrary number of processors?
 
+    Minimum serial: 1 + 0.5 + 0.25 + 0.5 + 0.5 = 2.75 hr
+    Minimum parallel: 1 + (MAX (0.5, 0.25 + 0.5)) + 0.5 = 2.25 hr
+
 5.  Clone the membench repository from GitHub:
 
        git clone git@github.com:cornell-cs5220-f15/membench.git
@@ -43,6 +71,10 @@ with questions for class!
     timings-heat.pdf; what can you tell about the cache architecture
     on your machine from the plot?
 
+    Anything larger than 32KB seems to take a substantially more amount
+    of time.
+    There seems to be another similar jump around 256Kb
+
 6.  From the cloned repository, check out the totient branch:
 
        git checkout totient
@@ -51,6 +83,8 @@ with questions for class!
     If you prefer, you can also look at the files on GitHub.  Either
     way, repeat the exercise of problem 5.  What can you tell about
     the cache architecture of the totient nodes?
+
+    Overall the totient node seems to take longer for all memory amounts.
 
 7.  Implement the following three methods of computing the centroid
     of a million two-dimensional coordinates (double precision).

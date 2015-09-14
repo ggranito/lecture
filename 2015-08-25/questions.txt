@@ -18,6 +18,14 @@ In practice, this took X time.  This includes
 Consider the following questions:
 
 1. What is a simple model that would predict this time?
+Total time = Setup Time + Max(Time to compute row counts) + time to gather counts + time to do arithmetic
+Total time = O(1) + O(n/rows) + O(rows) + O(rows)
+
 2. What about a simple model to predict time for one person to count?
+Total time = Setup Time + Time to count all people
+Total time = O(1) + O(n)
+
 3. How big should the class be before the parallel method takes less time?
+If the difference in the setup times + time to gather counts + time to do arithmetic is less than
+the O(n - n/rows) speed gain by parallelization, then the parallel method would take less time.
 

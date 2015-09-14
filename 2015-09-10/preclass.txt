@@ -3,12 +3,46 @@
    host cores are used, for the moment).  How do things change with
    the addition of the two Phi boards?
 
+   The cores have a theoretical peak flop rate of 307 GFLOPS (see prework from 8/27)
+   The cores also have a theoretical memory transfer rate of 59 GB/s.
+   This means that beyond an AI of 5.2, the tasks are CPU bound.
+
+   This means there will be a ridge point at (5.2, 307)
+
+   The graph: (The point the function changes at is the ridge point)
+
+   |
+   |     ____________________________________
+   |    /
+   |   /
+   |  /
+   | /
+   |/
+   |
+   |__________________________________________
+
+
+   When two Phi boards are added, the FLOP rate increases to 2328 GFLOPS
+   The memory tranfer rate also increases to 320 GB/s * 2 + 59 = 699 GB/s
+
+   This means that beyond an AI of 3.33, the tasks are CPU bound.
+   This moves the ridge point to (3.33, 2328)
+
 2. What is the difference between two cores and one core with
    hyperthreading?
+
+   2 Cores have their own caches. 1 core with hyperthreading only
+   has one cache that the two pipelines share.
 
 3. Do a Google search to find a picture of how memories are arranged
    on the Phi architecture.  Describe the setup briefly in your own
    words.  Is the memory access uniform or non-uniform?
+
+   Each core has it's own L2 cache and is connected to a bus. On the
+   bus there are multiple main memory controllers. For each core, there
+   is a tag directory on the bus for cache invalidation. Memory access is
+   non-uniform since a processor will likely be able to access it's own
+   cache more quickly than the caches of another processor.
 
 4. Consider the parallel dot product implementations suggested in the
    slides.  As a function of the number of processors, the size of the
@@ -17,3 +51,17 @@
    [Note that dot products have low arithmetic intensity -- the
     roofline model may be useful for reasoning about the peak
     performance for computing pieces of the dot product]
+
+    Changing processor number:
+      Since AI is low, I'd expect that increasing the number of processors
+      does not provide a substantial speed up since the amount of messaging
+      would need to increase.
+
+    Increasing vector size:
+      This will likely make the AI higher and have a larger impact on speed up
+      and make the algorithm more parallizable
+
+    Time to send a message increases:
+      This will decrease the AI and result in lower performance and decreased
+      benefit of parallelization.
+

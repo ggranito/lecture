@@ -22,9 +22,28 @@ something into an already-full cache.
 the memory-based AI of this code? (Hint: What is the memory-based AI of just the
 innermost loop?)
 
+Each cell takes 2N FLOPs to compute. There are N^2 cells, so overall 2N^3 FLOPs
+are needed to do the multiplication.
+
+For the innermost loop, the N A values, and N B values need to be loaded into cache.
+Since 16 bytes are needed per value, 2N values will be loaded for each
+inner loop. 
+
+Since this gets executed N^2 times, (16N)(N^2) = 16N^3 bytes need to be
+loaded.
+
+This yields an AI of 2N^3/(16N^3) which is 1/8 
 
 2. Now suppose that the cache is substantially larger than 16N, but
 substantially smaller than 8N^2. What is the AI now?
+
+The innermost loop value can now fit in the cache and will only need to be loaded
+once. This makes the values in A still available to the next iteration.
+
+This means that for every middle loop iteration, 8N + 8N^2 bytes will need to be loaded.
+This occurs N times. Overall 8N^2 + 8N^3 bytes will need to be loaded
+
+This yields an AI of 2N^3/(8N^2 + 8N^3) = approx 1/4
 
 
 3. Now suppose the cache is large enough to hold all of A, B, and C. What is the
@@ -32,19 +51,51 @@ AI now? (Hint: Writing to a byte of memory not already in the cache incurs two
 memory transfers: one to move the data to the cache for writing, and one to move
 the written data back to main memory.)
 
+Overall there are 2N^3 operations.
+
+A needs to be loaded into cache -> 8N^2 bytes loaded
+B needs to be loaded into cache -> 8N^2 bytes loaded
+C needs to be loaded into cache -> 8N^2 bytes loaded
+C needs to be written from cache -> 8N^2 bytes transferred
+
+overall there are 32N^2 bytes transferred.
+
+The overall AI is 2N^3/32N^2 = N/16 
 
 4. Cache overflowing. On my CPU (Intel i7-4700 HQ), L1, L2, and L3 caches are 32
 KB, 256 KB, and 6 MB respectively. What is the largest problem size N that will
 fit in each cache? What is the arithmetic intensity associated with each problem
 size?
 
+L1: Sqrt((32KB/8)/3) = 36
+	N = 36
+	AI = 36/16 = 2.25
+
+L2: Sqrt((256KB/8)/3) = 103
+	N = 103
+	AI = 103/16 = 6.44
+
+L3: Sqrt((6000KB/8)/3) = 500
+	N = 500
+	AI = 500/16 = 31.25
 
 5. My CPU has 4 cores, each of which can do 8 fused multiply-adds per cycle, has
 a clock rate of 2.4 GHz, and a memory bandwidth of 25.6 GB/s. At what arithmetic
 intensity does my machine become CPU-bound?
 
+32 FLOPs * 2.4 GHz = 76.8 GFLOPS
+76.8 GFLOPS / 25.6 GB/s = 3
+When AI > 3 the task is cpu bound
 
 6. So, for what size range for N will naive matmul be CPU-bound on my machine?
 
+When the cache is < 8N^2 AI drops to 1/4. So immediately after the cache is unable
+to hold all of the matrices, the task will be memory bound.
+
+So when 64 < N < 500, the matmul will be CPU bound.
 
 7. So, what will a plot of Flops/sec vs N look like?
+
+Flops/s will continually grow until N hits 500 and then it will drop substantially
+to a number that is around when N=4. As N continues to grow, this will continue to
+shrink until it gets to the point where N=1.

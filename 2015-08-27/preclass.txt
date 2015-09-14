@@ -8,13 +8,37 @@
     you should use a script to produce this plot, with both the serial
     fraction and the maximum number of cores as parameters.
 
+    According to Amdahl's law, the time ne
+    Let n be the number of cores
+    Let B be the fraction of the work that is parallelizable
+    Time:
+    T(n, B) = T(1)(B + (1-B)/n)
+    Speed Up:
+    S(n, B) = T(1)/T(n, B) = T(1)/(T(1)(B + (1-B)/n)) = 1/(B + (1-B)/n)
+    Parallel Efficiency:
+    E(n, B) = S(n, B)/n = (1/(B + (1-B)/n))/n
+
+    See plot.html for the plot. (vars B and n are configurable in the html file)
+
 2.  Suppose a particular program can be partitioned into perfectly
     independent tasks, each of which takes time tau.  Tasks are
     set up, scheduled, and communicated to p workers at a (serial)
     central server; this takes an overhead time alpha per task.
     What is the theoretically achievable throughput (tasks/time)?
 
+    Without overhead is not the limiting factor, throughput is p tasks
+    per tau time.
+
+    However with overhead, there are two cases:
+        1. p*alpha < tau
+            which yields p/(alpha + tau) throughput
+        2. p*alpha > tau
+            which yields a 1/alpha throughput
+
 3.  Under what circumstances is it best to not tune?
+
+    It is best not to tune if the expected gains are not worth
+    the cost of tuning.
 
 4.  The class cluster consists of eight nodes and fifteen Xeon Phi
     accelerator boards.  Based on an online search for information on
@@ -23,5 +47,22 @@
     you computed this, and give URLs for where you got the parameters
     in your calculation.  (We will return to this question again after
     we cover some computer architecture.)
+
+    Each Xeon Phi has a theoretical limit of 1.01088 TFlops according to footnote 3 of 
+    http://www.transtec.de/fileadmin/Medien/pdf/HPC/Xeon_Phi/high-performance-xeon-phi-coprocessor-brief-2.pdf
+
+    Each core can do 16 FLOPS/clock cycle according to
+    https://www.microway.com/hpc-tech-tips/intel-xeon-e5-2600-v3-haswell-processor-review/
+    Each core runs at 2.4 GHz
+    This yields 2.4 * 16 GFLOPS = 38.4 GLOPS
+
+    Overall the cluster can do:
+    38.4 * 8 GFLOPS + 1.01088 * 15 TFLOPS
+    For a total of 0.307 TFLOPS + 15.1632 TFLOPS = 15.4702 TFLOPS
     
 5.  What is the approximate theoretical peak flop rate for your own machine?
+    
+    I only have an i7 processor. It runs at 2.30 GHz. It can perform 4 FLOPs/cycle according to
+    http://stackoverflow.com/questions/15655835/flops-per-cycle-for-sandy-bridge-and-haswell-sse2-avx-avx2
+
+    Overall this is 2.30 * 4 = 9.20 GFLOPS
