@@ -1,7 +1,14 @@
 0.  How much time did you spend on this pre-class exercise, and when?
 
+    1.5-2 hours on Monday (9/21) night
+
 1.  What are one or two points that you found least clear in the
     9/22 slide decks (including the narration)?
+
+    It was a little difficult to follow the variance discussion that
+    occurred about the Monte Carlo problem. Statistics is one of my
+    weaker areas so I'd appreciate it if you could go a little more
+    slowly in the future.
 
 2.  The pthread_mc.c file in the demo subdirectory runs a Monte Carlo
     simulation to estimate the expected value of a uniform random
@@ -13,16 +20,42 @@
        time per trial (t_trial), and time to update the global
        counters in the critical section (t_update).
 
+       The total runtime is: 
+       Time = TSerial + TParallel
+       TParallel = (N * t_trail)/p
+       TSerial = p*t_update
+       Time = p*t_update + N*t_trial/p
+
     b) Run the code with a few different parameter values in order
        to estimate N, t_trial, and t_update for this code on
        a totient compute node.
+
+       Estimating N doesn't make sense, it is a parameter to the 
+       computation not a property of the system.
+
+       To estimate t_trial, run the code on a single thread with a 
+       high number of trials. This will make N*t_trial substantially
+       higher than p*t_update. This will make time/N a good prediction
+       for t_trial.
+
+       To estimate t_update, run this code with a very low N (1) and
+       a high number of processors used. This will make 
+       p*t_update substantially larger than N*t_trial/p. This
+       will make time/p a good prediction for t_update.
 
     c) Based on your model, suggest a strategy for choosing the batch
        size.  How might you generalize this strategy to automatically
        choose batch sizes for different types of computational
        experiments?
     
+       Ideally, to get full utilization, p*t_update should be slightly
+       smaller than N*t_trial/p. By selecting a p that satisfies this
+       criteria, the processors will be fully utilized since the critical
+       code will take as much actual time to run as the parallel code.
+       This will prevent blocking and allow the highest throughput.
+
 3.  In the workq subdirectory of this directory, there is a basic work
     queue implementation.  Following the strategy outlined in the
     slides, add synchronization calls in the locations marked TODO.
     You should run the code to make sure it behaves as expected!
+

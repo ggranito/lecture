@@ -146,14 +146,19 @@ void workq_wait(workq_t* workq)
 
 /*
  * Add work to the queue
- * TODO: This needs synchronization!
  */
 void workq_put(workq_t* workq, void* data)
 {
     task_t* task = (task_t*) malloc(sizeof(task_t));
     task->data = data;
+    // lock the queue
+    workq_lock(workq);
     task->next = workq->tasks;
     workq->tasks = task;
+    //give up the lock
+    workq_unlock(workq);
+    //let all waiting threads know it is available
+    workq_broadcast(workq);
 }
 
 
@@ -165,12 +170,18 @@ void workq_put(workq_t* workq, void* data)
 void* workq_get(workq_t* workq)
 {
     void* result = NULL;
+    // grab the lock
+    workq_lock(workq);
+    // wait for work to be available
+    workq_wait(workq);
     if (workq->tasks) {
         task_t* task = workq->tasks;
         result = task->data;
         workq->tasks = task->next;
         free(task);
     }
+    //free the lock
+    workq_unlock(workq);
     return result;
 }
 
@@ -179,11 +190,14 @@ void* workq_get(workq_t* workq)
  * Signal that no more work will be added to the queue.
  * NB: This function can be called when there are still tasks to process!
  *     We're just saying that we're done adding new tasks.
- * TODO: This needs synchronization!
  */
 void workq_finish(workq_t* workq)
 {
+    workq_lock(workq);
     workq->done = 1;
+    workq_unlock(workq);
+    //notify all workers that there's been a change.
+    workq_broadcast(workq);
 }
 
 
