@@ -1,7 +1,14 @@
 0.  How much time did you spend on this pre-class exercise, and when?
 
+    This exercise took about 1 hour and 30 min on the night before
+    class.
+
 1.  What are one or two points that you found least clear in the
     9/24 slide decks (including the narration)?
+
+    OpenMP was pretty unclear. Based on the lecture, I don't really
+    feel like I know how to use it. It'd be nice if more time was
+    spent going over that.
 
 2.  The omp_mc.c file in the demo subdirectory runs a Monte Carlo
     simulation to estimate the expected value of a uniform random
@@ -13,16 +20,38 @@
        time per trial (t_trial), and time to update the global
        counters in the critical section (t_update).
 
+       Similarly to the question from last pre-work, the model is:
+
+       T = N*t_trial/p + N*t_update/b
+
     b) Run the code with a few different parameter values in order
        to estimate N, t_trial, and t_update for this code on
        a totient compute node.
+
+       I was unable to run this as my VPN is not setup, but to get
+       the numbers, I'd try it at a few different parameter values
+       then set up a system of equations and solve it to find
+       t_trial and t_update.
 
     c) Based on your model, suggest a strategy for choosing the batch
        size.  How might you generalize this strategy to automatically
        choose batch sizes for different types of computational
        experiments?
 
+       The model suggests that infinetly increasing the batch size will
+       decrease the total run time. However, as the batch size increases,
+       eventually the system will be inefficient and will not use
+       all cores effectively. It would be a good idea to increase
+       the batch size as high as possible until performance drops off.
+
 3.  The "OpenMP pitfalls" paper describes some common pitfalls (both
     performance and correctness) in OpenMP codes.  Go through the
     checklist in the paper for omp_mc.c.  What performance mistakes
     are there in the demonstration implementation?
+
+    There are two locations where the code performs unnecessary 
+    computation in the critical sections. This is very costly
+    since the other processes can be blocked while this is 
+    happening.
+    These two cases are the random number generation and
+    the boolean logic that occurs in the while loop.
