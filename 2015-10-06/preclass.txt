@@ -1,7 +1,12 @@
 0.  How much time did you spend on this pre-class exercise, and when?
 
+    About 1.5 hours on the night before class.
+
 1.  What are one or two points that you found least clear in the
     10/06 slide decks (including the narration)?
+
+    Overall it was very clear. A little more detail on exactly how
+    the messages are passed could be useful. But overall it was good.
 
 2.  In the upcoming lecture (10/8), we will discuss how to model
     latency and bandwidth of MPI sends and receives using the
@@ -14,6 +19,29 @@
        (under /usr/local/intel).  Using this version of MPI and the
        default PBS files, run the pingpong examples (demo/pingpong).
 
+       After running ping pong on 2 cores:
+
+        Size    Time
+        1       3.0193e-07
+        1001    4.12976e-07
+        2001    4.86056e-07
+        3001    5.59685e-07
+        4001    6.29874e-07
+        5001    7.20205e-07
+        6001    8.10754e-07
+        7001    9.0927e-07
+        8001    1.0022e-06
+        9001    1.09739e-06
+        10001   1.21701e-06
+        11001   1.33553e-06
+        12001   1.41524e-06
+        13001   1.52281e-06
+        14001   1.63398e-06
+        15001   1.73607e-06
+        16001   1.83913e-06
+
+
+
     b) Now do "module load openmpi/1.10.0-icc-15.0.3" after loading
        the CS 5220 module.  Check by typing "which mpicc" that you
        are now using a different version of mpicc.  Compile with
@@ -21,7 +49,38 @@
        you will have to add a module load to the start of the PBS
        scripts).  How do the timings differ from the Intel MPI timings?
 
+       After running on 2 cores using openmpi:
+
+        Size    Time
+        1       3.73681e-07
+        1001    1.16244e-06
+        2001    1.341e-06
+        3001    1.66885e-06
+        4001    2.00819e-06
+        5001    3.09725e-06
+        6001    3.38368e-06
+        7001    3.67856e-06
+        8001    4.13886e-06
+        9001    4.38939e-06
+        10001   4.80316e-06
+        11001   5.18509e-06
+        12001   5.39333e-06
+        13001   5.69252e-06
+        14001   6.21936e-06
+        15001   6.42622e-06
+        16001   6.82325e-06
+
+        Using OpenMPI is substantially slower than the intel
+        implementation. It results in messages being passed
+        up to 5 times slower.
+
+
     c) When running at the peak rate (e.g. 16 double precision
        flops/cycle), how many (double precision) floating point ops
        could two totient cores do in the minimal time required for one
        MPI message exchange?
+
+       If the minimum amount of time is 3.0e-7 seconds, and the core is
+       running at 2.40 GHz:
+
+       3.0e-7 * 2.40e9 * 2 = 1440 flops.
